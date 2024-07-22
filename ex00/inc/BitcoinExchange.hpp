@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dacortes <dacortes@student.42.fr>          +#+  +:+       +#+        */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:48:10 by dacortes          #+#    #+#             */
-/*   Updated: 2024/07/21 10:56:37 by dacortes         ###   ########.fr       */
+/*   Updated: 2024/07/22 10:19:53 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,22 +17,28 @@
 /*                            INCLUDES                                        */
 /******************************************************************************/
 
+# include <map>
 # include <cstdlib>
 # include <string>
 # include <ostream>
 # include <iostream>
 # include <sstream>
+# include <fstream>
+# include <float.h>
 
 /******************************************************************************/
 /*                            MACROS                                          */
 /******************************************************************************/
 
-
+/*	Erros	*/
 # define ERROR_INVALID_ARGUMENTS "Invalid arguments: the number of arguments\
 must be two: num: "
 # define ERROR_TOO_MANY_ARG "too many arguments: the number of arguments\
 must be two: num: " 
 # define ERROR_OPEN_FILE "open file: "
+
+/*	Utils	*/
+# define PATH_DATA_BASE "data.csv"
 
 /******************************************************************************/
 /*                            COLORS                                          */
@@ -55,10 +61,36 @@ must be two: num: "
 class  BitcoinExchange
 {
 	private:
-	/* data */
+		/*
+		 * Orthodox Canonical Form
+		*/
+		BitcoinExchange(void);
+		BitcoinExchange(const BitcoinExchange &obj);
+		BitcoinExchange	&operator=(const BitcoinExchange &obj);
+		~ BitcoinExchange(void);
+		static void	parsing_file(std::string);
+		
 	public:
-		BitcoinExchange(/* args */);
-		~ BitcoinExchange();
+		class BitcoinExchangeException: public std::exception
+		{
+			private:
+				std::string	_msgError;
+			public:
+				BitcoinExchangeException(int msgCode):_msgError(""){(void)msgCode;}
+				BitcoinExchangeException(std::string msgError): _msgError(msgError){}
+				virtual const char *what() const throw()
+				{
+					return (_msgError.c_str());
+				}
+				~BitcoinExchangeException(void) throw(){}
+		};
 };
+
+template <typename PrintT>
+int	error_msg(int	exitCode, std::string error, PrintT foo)
+{
+	std::cerr << RED << "Error: " << END << error << foo << std::endl;
+	return (exitCode);
+}
 
 #endif
