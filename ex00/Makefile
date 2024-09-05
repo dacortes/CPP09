@@ -13,7 +13,7 @@ DIRECTORI_SOURCE = src
 OBJECTS = $(addprefix $(DIRECTORIES_UTILS)/, $(SOURCES:.cpp=.o))
 DEPENDENCIES = $(addprefix $(DIRECTORIES_UTILS)/, $(SOURCES:.cpp=.d))
 INCLUDES = $(addprefix -I, inc)
-SOURCES = main.cpp
+SOURCES = main.cpp BitcoinExchange.cpp
 
 ################################################################################
 #                               BOLD COLORS                                    #
@@ -42,6 +42,8 @@ italic = \033[3m
 all: dir progress
 
 print:
+	@echo "$(INCLUDES)"
+	@echo "$(OBJECTS)"
 	@echo $(DIRECTORIES_UTILS) 
 $(NAME): $(OBJECTS)
 	$(CPP) $(CFLAGS) $(INCLUDES) $(OBJECTS) -o $(NAME)

@@ -6,11 +6,10 @@
 /*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:51:10 by dacortes          #+#    #+#             */
-/*   Updated: 2024/07/22 10:14:38 by codespace        ###   ########.fr       */
+/*   Updated: 2024/09/05 15:34:10 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// #include "../inc/BitcoinExchange.hpp"
 #include <BitcoinExchange.hpp>
 
 void parsing_arguments(int numArguments)
@@ -23,8 +22,14 @@ void parsing_arguments(int numArguments)
 
 int main(int ac, char **av)
 {
-	(void)ac;
-	(void)av;
 	parsing_arguments(ac);
+	try
+	{
+		BitcoinExchange	foo(av[1]);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what();
+	}
 	return (EXIT_SUCCESS);
 }
