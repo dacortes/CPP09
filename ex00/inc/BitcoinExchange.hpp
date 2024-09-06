@@ -6,7 +6,7 @@
 /*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:48:10 by dacortes          #+#    #+#             */
-/*   Updated: 2024/09/05 15:29:01 by codespace        ###   ########.fr       */
+/*   Updated: 2024/09/06 15:55:59 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ must be two: num: "
 # define ERROR_TOO_MANY_ARG "too many arguments: the number of arguments\
 must be two: num: " 
 # define ERROR_OPEN_FILE "open file: "
+# define ERROR_PRICE_DATA "invalid price on data "
 
 /*	Utils	*/
 # define PATH_DATA_BASE "data.csv"
@@ -74,8 +75,14 @@ class  BitcoinExchange
 		/*
 			Methods
 		*/
-		static void	parsingFile();
-		static void	checkIfstream(std::ifstream &file, char end);
+		static void		parsingFile();
+
+		/* Utils */
+		static void		skipUntil(std::ifstream &file, char end);
+		static bool 	loadPrices(std::ifstream &fileDataBase, std::map<int, int> &dataBase);
+		static bool 	loadLinePrices(std::ifstream &fileDataBase, std::map<int, int> &dataBase);
+		static int		parseDataKeyFromDataBase(std::ifstream &fileDataBase, char separator);
+		static float	parseDataValueFromDataBase(std::ifstream &fileDataBase);
 		
 	public:
 		/*
