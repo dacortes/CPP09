@@ -6,7 +6,7 @@
 /*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:48:10 by dacortes          #+#    #+#             */
-/*   Updated: 2024/09/06 15:55:59 by codespace        ###   ########.fr       */
+/*   Updated: 2024/09/07 14:46:19 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,17 @@
 # include <sstream>
 # include <fstream>
 # include <float.h>
+# include <stdexcept>
+
 
 /******************************************************************************/
 /*                            MACROS                                          */
 /******************************************************************************/
+
+
+# define DAYTS_IN_1_YEAR 365
+# define DAYTS_IN_4_YEAR 1461
+# define DAYTS_IN_400_YEAR 146099
 
 /*	Erros	*/
 # define ERROR_INVALID_ARGUMENTS "Invalid arguments: the number of arguments\
@@ -37,6 +44,7 @@ must be two: num: "
 must be two: num: " 
 # define ERROR_OPEN_FILE "open file: "
 # define ERROR_PRICE_DATA "invalid price on data "
+# define ERROR_INVALID_DATE "invalid date"
 
 /*	Utils	*/
 # define PATH_DATA_BASE "data.csv"
@@ -59,6 +67,12 @@ must be two: num: "
 /*                            CLASS                                           */
 /******************************************************************************/
 
+typedef struct s_date{
+	unsigned int year;
+	unsigned int month;
+	unsigned int day;
+} t_date;
+
 class  BitcoinExchange
 {
 	private:
@@ -68,9 +82,16 @@ class  BitcoinExchange
 			Attributes
 		*/
 
-		std::string	_inFileName;
-		std::map<std::string, float> _dataBase;
-		std::ifstream _fileDataBase;
+		std::string						_inFileName;
+		std::ifstream 					_fileDataBase;
+		std::map<unsigned int, float>	_dataBase;
+
+
+		static const int	DAYS_IN_1_YEARS = 365;
+		static const int	DAYS_IN_4_YEARS = 1461;
+		static const int	DAYS_IN_100_YEARS = 36524;
+		static const int	DAYS_IN_400_YEARS = 146097;
+		const static std::map<unsigned int, unsigned int> DAYS_IN_A_MONTH;
 
 		/*
 			Methods
@@ -78,11 +99,21 @@ class  BitcoinExchange
 		static void		parsingFile();
 
 		/* Utils */
+		static std::map<unsigned int, unsigned int> INITIALIZE_DAYS_IN_A_MONTH();
+		static void		cleanBlank(std::string &inpStr);
 		static void		skipUntil(std::ifstream &file, char end);
-		static bool 	loadPrices(std::ifstream &fileDataBase, std::map<int, int> &dataBase);
-		static bool 	loadLinePrices(std::ifstream &fileDataBase, std::map<int, int> &dataBase);
+		static bool 	loadPrices(std::ifstream &fileDataBase, std::map<unsigned int, float> &dataBase);
+		static bool 	loadLinePrices(std::ifstream &fileDataBase, std::map<unsigned, float> &dataBase);
 		static int		parseDataKeyFromDataBase(std::ifstream &fileDataBase, char separator);
 		static float	parseDataValueFromDataBase(std::ifstream &fileDataBase);
+
+		static t_date parseDate(std::string date_str);
+		static std::string	getDateStrFromFile(std::ifstream &fileDataBase, char separator);
+		static int			dateStrToInt(std::string date_str);
+
+		static bool			isLeap(unsigned int year);
+		static unsigned int			monthToDay(unsigned int month);
+		static unsigned int			monthAcumulatedDays(unsigned int month);
 		
 	public:
 		/*
