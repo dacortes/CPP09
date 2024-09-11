@@ -4,8 +4,6 @@ void parsing_arguments(int numArguments)
 {
 	if (numArguments < 2)
 		std::exit(error_msg(1, ERROR_INVALID_ARGUMENTS, numArguments));
-	if (numArguments > 2)
-		std::exit(error_msg(1, ERROR_TOO_MANY_ARG, numArguments));
 }
 
 timespec timespecDiff(const timespec& tl, const timespec& tr)
