@@ -1,11 +1,46 @@
 #ifndef SORTER_HPP
 # define SORTER_HPP
 
+/******************************************************************************/
+/*                            INCLUDES                                        */
+/******************************************************************************/
+
 #include <iostream>
 #include <sstream>
 #include <deque>
 #include <vector>
 #include <cstdlib>
+
+/******************************************************************************/
+/*                            MACROS                                          */
+/******************************************************************************/
+
+/*	Erros	*/
+# define ERROR_INVALID_ARGUMENTS "Invalid arguments: the number of arguments\
+must be two: num: "
+# define ERROR_TOO_MANY_ARG "too many arguments: the number of arguments\
+must be two: num: " 
+
+/******************************************************************************/
+/*                            COLORS                                          */
+/******************************************************************************/
+
+# define END "\033[m"             
+# define RED "\033[1m\033[1;31m"
+# define GREEN "\033[1m\033[1;32m"
+# define YELLOW "\033[1m\033[1;33m"
+# define BLUE "\033[1;34m"
+# define TUR "\033[1m\033[1;35m"
+# define CYAN "\033[1;36m"
+# define ORANGE "\033[1m\033[38;5;208m"
+# define PURPLE "\033[1m\033[38;5;128m"
+
+template <typename PrintT>
+int	error_msg(int	exitCode, std::string error, PrintT foo)
+{
+	std::cout << RED << "Error: " << END << error << foo << std::endl;
+	return (exitCode);
+}
 
 template <typename contType>
 void printContainer(contType cont)
@@ -18,6 +53,14 @@ void printContainer(contType cont)
 template <typename T > 
 class sorter
 {
+	private:
+
+		T						initialNumbers;
+		T						numbers;
+		T						subset0;
+		T						subset1;
+		typename T::size_type	subsetSize;
+
 	public:
 		sorter<T>(){} ;
 		sorter(T numbers) : numbers(numbers), initialNumbers(numbers) {};
@@ -54,7 +97,7 @@ class sorter
 			for (; c != end; c++)
 			{
 				if (*c < '0' || *c > '9')
-					throw std::exception();
+					throw sorterException(error_msg(1, "Invalid input - the string contains non-numeric characters", *c));
 			}
 			this->push(atoi(number.c_str()));
 		};
@@ -107,13 +150,19 @@ class sorter
 				beginSet++;
 			}
 		}
-
-	private:
-		T						initialNumbers;
-		T						numbers;
-		T						subset0;
-		T						subset1;
-		typename T::size_type	subsetSize;
+		class sorterException: public std::exception
+		{
+			private:
+				std::string	_msgError;
+			public:
+				sorterException(int msgCode):_msgError(""){(void)msgCode;}
+				sorterException(std::string msgError): _msgError(msgError){}
+				virtual const char *what() const throw()
+				{
+					return (_msgError.c_str());
+				}
+				~sorterException(void) throw(){}
+		};
 };
 
 #endif

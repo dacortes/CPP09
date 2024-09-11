@@ -1,5 +1,12 @@
 #include <PmergeMe.hpp>
 
+void parsing_arguments(int numArguments)
+{
+	if (numArguments < 2)
+		std::exit(error_msg(1, ERROR_INVALID_ARGUMENTS, numArguments));
+	if (numArguments > 2)
+		std::exit(error_msg(1, ERROR_TOO_MANY_ARG, numArguments));
+}
 
 timespec timespecDiff(const timespec& tl, const timespec& tr)
 {
@@ -38,20 +45,16 @@ timespec doTest(std::string inpNumbers, contType& queue)
 	return (timespecDiff(end, start));
 }
 
-int main(int argc, char **argv)
+int main(int ac, char **av)
 {
 	sorter<std::deque<int> >			queueSorter;
 	sorter<std::vector<int> >			vectorSorter;
 	std::string							numbers;
 
-	if (argc < 2)
+	parsing_arguments(ac);
+	for (int i = 1; i < ac; i++)
 	{
-		std::cout << "ERROR" << std::endl;
-		return (1);
-	}	
-	for (int i = 1; i < argc; i++)
-	{
-		numbers = numbers + std::string(" ") + std::string(argv[i]);
+		numbers = numbers + std::string(" ") + std::string(av[i]);
 		numbers.erase(numbers.size(), 1);
 	}
 	std::cout << "NUMBERS : " << numbers << std::endl;
@@ -64,7 +67,7 @@ int main(int argc, char **argv)
 	}
 	catch (std::exception &e)
 	{
-		std::cout << "ERROR" << std::endl;
+		std::cout << e.what();
 		return (1);
 	}
 	std::cout << "Before: " ; queueSorter.printInitial(); std::cout << std::endl << std::endl;
