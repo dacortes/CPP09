@@ -6,7 +6,7 @@
 /*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:48:10 by dacortes          #+#    #+#             */
-/*   Updated: 2024/09/07 14:46:19 by codespace        ###   ########.fr       */
+/*   Updated: 2024/09/11 08:23:20 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,12 +96,13 @@ class  BitcoinExchange
 		/*
 			Methods
 		*/
-		static void		parsingFile();
+		float	getPrice(const std::string &date);
+		float	getPrice(unsigned int date);
 
 		/* Utils */
 		static std::map<unsigned int, unsigned int> INITIALIZE_DAYS_IN_A_MONTH();
 		static void		cleanBlank(std::string &inpStr);
-		static void		skipUntil(std::ifstream &file, char end);
+		static void		skeepUntil(std::ifstream &file, char end);
 		static bool 	loadPrices(std::ifstream &fileDataBase, std::map<unsigned int, float> &dataBase);
 		static bool 	loadLinePrices(std::ifstream &fileDataBase, std::map<unsigned, float> &dataBase);
 		static int		parseDataKeyFromDataBase(std::ifstream &fileDataBase, char separator);
@@ -109,11 +110,14 @@ class  BitcoinExchange
 
 		static t_date parseDate(std::string date_str);
 		static std::string	getDateStrFromFile(std::ifstream &fileDataBase, char separator);
-		static int			dateStrToInt(std::string date_str);
+		static unsigned int			dateStrToInt(std::string date_str);
 
 		static bool			isLeap(unsigned int year);
 		static unsigned int			monthToDay(unsigned int month);
 		static unsigned int			monthAcumulatedDays(unsigned int month);
+
+		void	printHistoryValues(const std::string &walletHistoryFileName);
+		bool	printHistoryLineValue(std::ifstream &walletHistory);
 		
 	public:
 		/*

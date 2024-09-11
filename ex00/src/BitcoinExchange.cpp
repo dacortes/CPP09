@@ -38,9 +38,11 @@ BitcoinExchange::BitcoinExchange(std::string inFileName)
 {
 	this->_fileDataBase.open(PATH_DATA_BASE);
 	if (!this->_fileDataBase.is_open())
-		throw BitcoinExchangeException(ERROR_OPEN_FILE);
+		throw BitcoinExchangeException(error_msg(1, ERROR_OPEN_FILE, PATH_DATA_BASE));
 	this->_inFileName = inFileName;
 	BitcoinExchange::loadPrices(this->_fileDataBase, this->_dataBase);
+	std::cout << BLUE << "Print history" << END << std::endl;
+	BitcoinExchange::printHistoryValues(inFileName.c_str());
 }
 
 BitcoinExchange::BitcoinExchange(const BitcoinExchange &obj)
@@ -59,6 +61,117 @@ BitcoinExchange::~BitcoinExchange(void)
 	this->_fileDataBase.close();
 }
 
+float	BitcoinExchange::getPrice(unsigned int date)
+{
+	while (date > 0)
+	{
+		try
+		{
+			return(this->_dataBase.at(date));
+		}
+		catch (std::out_of_range& e) { }
+		date--;
+	}
+	return (-1);
+}
+
+float	BitcoinExchange::getPrice(const std::string &date)
+{
+	return (this->getPrice(BitcoinExchange::dateStrToInt(date)));
+}
+
+bool checkFloatStr(const std::string &floatStr)
+{
+	std::string::const_iterator c = floatStr.begin(), end = floatStr.end();
+	bool	decSep = false;
+	bool 	numAfterDecSep = false;
+
+	if (*c == '.')
+		return (false);
+	for (; c != end && *c; c++)
+	{
+		if (*c == '.' && !decSep)
+			decSep = true;
+		else if (*c < '0' || *c > '9')
+		{
+			return (false);
+		}
+		else if (decSep)
+			numAfterDecSep = true;
+	}
+	if (decSep && !numAfterDecSep)
+		return (false);
+	return (true);
+}
+
+bool	BitcoinExchange::printHistoryLineValue(std::ifstream &walletHistory)
+{
+	std::string		date_str;
+	unsigned int	date;
+	std::string		ammountStr;
+	float			ammount;
+	char			c;
+	float			price;
+
+	date_str = getDateStrFromFile(walletHistory, '|');
+	if (date_str.size() == 0 and !walletHistory.good())
+		return (false);
+	date = BitcoinExchange::dateStrToInt(date_str);
+	if (date == 0)
+	{
+		std::cout << "Invalid date: " << date_str << ": "  << std::endl;
+		return (false);
+	}
+	c = walletHistory.get();
+	while(c != '\n')
+	{
+		ammountStr += c;
+		c = walletHistory.get();
+	}
+	cleanBlank(ammountStr);
+	if (!checkFloatStr(ammountStr)) //  falta acoplar
+	{
+		std::cout << "Invalid ammount (min 0.0, max 1000.0): " << ammountStr << std::endl;;
+		walletHistory.putback('\n');
+		return(false);
+	}
+	ammount = std::atof(ammountStr.c_str());
+	if (ammount < 0 || ammount > 1000)
+	{
+		std::cout << "Ammout out of range (min 0.0, max 1000.0): " << ammountStr << "." << std::endl;;
+		walletHistory.putback('\n');
+		return (false);
+	}
+	price = this->getPrice(date);// falta implementar metodos con sobrecarga
+	if (price < 0)
+	{
+		std::cout << "Could not get price for date: " << date_str << std::endl;
+		walletHistory.putback('\n');
+		return (false);
+	}
+	std::cout << date_str << " => " << ammount << " = " << ammount * price << std::endl;
+	return (true);
+}
+
+void	BitcoinExchange::printHistoryValues(const std::string &walletHistoryFileName)
+{
+	std::ifstream walletHistory(walletHistoryFileName.c_str());
+
+	if (!walletHistory.is_open())
+		throw BitcoinExchangeException(error_msg(1, ERROR_OPEN_FILE, walletHistoryFileName));
+	skeepUntil(walletHistory, '\n');
+	while(walletHistory.good())
+	{
+		if (!this->printHistoryLineValue(walletHistory))
+		{
+			while(walletHistory.good() && walletHistory.peek() != '\n')
+				walletHistory.get();
+			if (walletHistory.peek() == '\n')
+				walletHistory.get();
+		}
+	}
+}
+
 void BitcoinExchange::cleanBlank(std::string &inpStr)
 {
 	while(inpStr.size() > 0 && inpStr[0] == ' ')
@@ -69,7 +182,7 @@ void BitcoinExchange::cleanBlank(std::string &inpStr)
 		inpStr.erase(inpStr.size()-1, 1);
 }
 
-void	BitcoinExchange::skipUntil(std::ifstream &file, char end)
+void	BitcoinExchange::skeepUntil(std::ifstream &file, char end)
 {
 	while(file.good() and (file.peek() != end))
 	{
@@ -81,12 +194,12 @@ void	BitcoinExchange::skipUntil(std::ifstream &file, char end)
 
 bool BitcoinExchange::loadPrices(std::ifstream &fileDataBase, std::map<unsigned int, float> &dataBase)
 {
-	skipUntil(fileDataBase, '\n');
+	skeepUntil(fileDataBase, '\n');
 
 	while (fileDataBase.good())
 	{
 		if (!BitcoinExchange::loadLinePrices(fileDataBase, dataBase))
-			skipUntil(fileDataBase, '\n');
+			skeepUntil(fileDataBase, '\n');
 	}
 
 	return (true);
@@ -237,7 +350,7 @@ t_date BitcoinExchange::parseDate(std::string date_str)
 	}
 }
 
-int	BitcoinExchange::dateStrToInt(std::string date_str)
+unsigned int	BitcoinExchange::dateStrToInt(std::string date_str)
 {
 	int		result = 0;
 	t_date	date = BitcoinExchange::parseDate(date_str);
